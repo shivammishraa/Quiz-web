@@ -1,13 +1,13 @@
-import Header from "./components/Header";
-import Quiz from "./components/Quiz";
+import React from 'react';
+import Quiz from './components/Quiz';
 
-function App() {
-  return <> 
-  <Header/>
-  <main>
-    <Quiz/>
-  </main>
-</>
-}
+const App = () => {
+  return (
+    <div>
+      <h1>Quiz Application</h1>
+      <Quiz />
+    </div>
+  );
+};
 
 export default App;

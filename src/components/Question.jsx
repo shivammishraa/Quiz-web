@@ -1,70 +1,36 @@
-import { useState } from "react";
-import QuestionTimer from "./QuestionTimer";
-import Answers from "./Answers";
-import QUESTIONS from "../questions";
+import React from 'react';
 
-export default function Question({ index, onSelectAnswer, onSkipAnswer }) {
-  const [answer, setAnswer] = useState({
-    selectedAnswer: "",
-    isCorrect: null,
-  });
-
-  let timer = 15000;
-
-  if (answer.selectedAnswer) {
-    timer = 1000;
-  }
-
-  if (answer.isCorrect !== null) {
-    timer = 2000;
-  }
-
-  function handleSelectAnswer(selectedAnswer) {
-    // Immediately update the selected answer and set state to "answered"
-    setAnswer({
-      selectedAnswer: selectedAnswer,
-      isCorrect: null,
-    });
-
-    // Check if the selected answer is correct after a delay
-    setTimeout(() => {
-      setAnswer((prevAnswer) => ({
-        ...prevAnswer,
-        isCorrect: QUESTIONS[index].answers[0] === selectedAnswer,
-      }));
-
-      // Pass the selected answer to the parent component (Quiz)
-      setTimeout(() => {
-        onSelectAnswer(selectedAnswer);
-      }, 2000);
-    }, 1000);
-  }
-
-  let answerState = "";
-
-  // Determine the state for CSS classes (answered, correct, or wrong)
-  if (answer.selectedAnswer && answer.isCorrect !== null) {
-    answerState = answer.isCorrect ? "correct" : "wrong";
-  } else if (answer.selectedAnswer) {
-    answerState = "answered";
-  }
-
+const Question = ({ question, selectedAnswer, onAnswerSelect, correctAnswer }) => {
   return (
-    <div id="question">
-      <QuestionTimer
-        key={timer}
-        timeout={timer}
-        onTimeout={answer.selectedAnswer === '' ? onSkipAnswer : null}
-        mode={answerState}
-      />
-      <h2>{QUESTIONS[index].text}</h2>
+    <div className="question">
+      <h3>{question.description}</h3>
+      <div className="options">
+        {question.options.map((option) => {
+          const isCorrect = correctAnswer && option.id === correctAnswer;
+          const isWrong = selectedAnswer && option.id === selectedAnswer && option.id !== correctAnswer;
 
-      <Answers
-        answers={QUESTIONS[index].answers}
-        selectedAnswer={answer.selectedAnswer}
-        answerState={answerState} // This controls the visual state of the selected answer
-        onSelect={handleSelectAnswer} // Pass the handler to handle answer selection
-      />
+          return (
+            <div
+              key={option.id}
+              className={`option ${isCorrect ? 'correct' : ''} ${isWrong ? 'wrong' : ''}`}
+            >
+              <label>
+                <input
+                  type="radio"
+                  name={`question-${question.id}`}
+                  value={option.id}
+                  checked={selectedAnswer === option.id}
+                  onChange={() => onAnswerSelect(question.id, option.id)}
+                  disabled={!!correctAnswer} // Disable selection after submission
+                />
+                {option.description}
+              </label>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
-}
+};
+
+export default Question;
